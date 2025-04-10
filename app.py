@@ -22,9 +22,6 @@ face_encodings = []
 face_names = []
 students_info = {}
 
-# Configuration
-USE_WEBCAM = True  # Set to False to use simulation mode instead of webcam
-
 # Load student data
 def load_student_data():
     global known_face_encodings, known_face_names, students_info
@@ -80,51 +77,10 @@ def mark_attendance(student_id):
         return True
     return False
 
-# Create a simulated face detection frame for testing without webcam
-def create_simulation_frame(student_id=None, show_face=True, countdown=0, success_message=None):
-    # Create a blank frame
-    frame = np.ones((480, 640, 3), dtype=np.uint8) * 240  # Gray background
-    
-    # Draw header
-    cv2.putText(frame, "SIMULATION MODE - NO WEBCAM NEEDED", (20, 30), 
-               cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-    
-    # Draw simulated face detection area
-    cv2.rectangle(frame, (270, 120), (370, 240), (0, 0, 0), 2)
-    
-    if show_face:
-        # Draw simulated face
-        cv2.circle(frame, (320, 180), 50, (200, 200, 200), -1)  # Head
-        cv2.circle(frame, (305, 170), 5, (0, 0, 0), -1)  # Left eye
-        cv2.circle(frame, (335, 170), 5, (0, 0, 0), -1)  # Right eye
-        cv2.ellipse(frame, (320, 190), (20, 10), 0, 0, 180, (0, 0, 0), 2)  # Smile
-        
-        # Draw face detection box
-        cv2.rectangle(frame, (270, 120), (370, 240), (0, 255, 0), 2)
-        
-        if countdown > 0:
-            cv2.putText(frame, f"Capturing in: {countdown}", (220, 280), 
-                       cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-        
-        if success_message:
-            cv2.putText(frame, success_message, (180, 320), 
-                      cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 150, 0), 2)
-            
-        # Show student ID if in attendance mode
-        if student_id:
-            cv2.rectangle(frame, (270, 240), (370, 270), (0, 255, 0), cv2.FILLED)
-            cv2.putText(frame, student_id, (280, 260), 
-                      cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1)
-    else:
-        cv2.putText(frame, "No face detected", (260, 280), 
-                   cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-    
-    return frame
-
 # Routes
 @app.route('/')
 def index():
-    return render_template('index.html', simulation_mode=not USE_WEBCAM)
+    return render_template('index.html')
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -156,62 +112,18 @@ def register():
         flash('Student registered successfully! Now capture the face.', 'success')
         return redirect(url_for('capture_face', student_id=student_id))
     
-    return render_template('register.html', simulation_mode=not USE_WEBCAM)
+    return render_template('register.html')
 
 @app.route('/capture_face/<student_id>')
 def capture_face(student_id):
-    return render_template('capture_face.html', student_id=student_id, simulation_mode=not USE_WEBCAM)
+    return render_template('capture_face.html', student_id=student_id)
 
 # Video feed for face capture
 @app.route('/video_feed_capture/<student_id>')
 def video_feed_capture(student_id):
     def generate_frames_capture(student_id):
-        if not USE_WEBCAM:
-            # Simulation mode - no webcam needed
-            # Create random face encoding for simulation
-            random_encoding = np.random.rand(128)
-            random_encoding = random_encoding / np.linalg.norm(random_encoding)
-            
-            # Show initial frame
-            for i in range(30):  # About 3 seconds of detection
-                show_face = i > 10  # Start showing face after a delay
-                frame = create_simulation_frame(student_id=None, show_face=show_face)
-                ret, buffer = cv2.imencode('.jpg', frame)
-                frame_bytes = buffer.tobytes()
-                yield (b'--frame\r\n'
-                       b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
-                time.sleep(0.1)
-            
-            # Show countdown
-            for i in range(5, 0, -1):
-                frame = create_simulation_frame(student_id=None, countdown=i)
-                ret, buffer = cv2.imencode('.jpg', frame)
-                frame_bytes = buffer.tobytes()
-                yield (b'--frame\r\n'
-                       b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
-                time.sleep(1)
-            
-            # Save the random encoding
-            np.save(f'data/faces/{student_id}.npy', random_encoding)
-            load_student_data()
-            
-            # Show success message
-            for i in range(20):  # 2 seconds of success message
-                frame = create_simulation_frame(
-                    student_id=None, 
-                    success_message="Face captured successfully!"
-                )
-                ret, buffer = cv2.imencode('.jpg', frame)
-                frame_bytes = buffer.tobytes()
-                yield (b'--frame\r\n'
-                       b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
-                time.sleep(0.1)
-            
-            return
-        
-        # Webcam mode
         try:
-            camera = cv2.VideoCapture(1)
+            camera = cv2.VideoCapture(0)
             if not camera.isOpened():
                 # Create an error image to display when camera is not accessible
                 error_img = np.zeros((300, 500, 3), dtype=np.uint8)
@@ -295,78 +207,12 @@ def face_captured(student_id):
 
 @app.route('/attendance')
 def attendance():
-    return render_template('attendance.html', simulation_mode=not USE_WEBCAM)
+    return render_template('attendance.html')
 
 # Video feed for attendance
 @app.route('/video_feed_attendance')
 def video_feed_attendance():
     def generate_frames_attendance():
-        if not USE_WEBCAM:
-            # Simulation mode - no webcam needed
-            recognized = False
-            recognized_id = None
-            
-            # Show initial frames with detection
-            for i in range(30):  # 3 seconds of searching
-                frame = create_simulation_frame(show_face=(i > 10))
-                ret, buffer = cv2.imencode('.jpg', frame)
-                frame_bytes = buffer.tobytes()
-                yield (b'--frame\r\n'
-                       b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
-                time.sleep(0.1)
-            
-            # If we have any students with face data, randomly select one
-            if known_face_names:
-                recognized = True
-                recognized_id = known_face_names[0]  # Just use the first one for simplicity
-                
-                # Mark attendance for simulation
-                attendance_marked = mark_attendance(recognized_id)
-                success_msg = None
-                if attendance_marked:
-                    success_msg = f"Attendance marked: {students_info.get(recognized_id, recognized_id)}"
-                
-                # Show recognition frames
-                for i in range(40):  # 4 seconds of recognition
-                    frame = create_simulation_frame(student_id=recognized_id)
-                    
-                    if success_msg:
-                        cv2.putText(frame, success_msg, (100, 400), 
-                                   cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
-                        
-                    ret, buffer = cv2.imencode('.jpg', frame)
-                    frame_bytes = buffer.tobytes()
-                    yield (b'--frame\r\n'
-                           b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
-                    time.sleep(0.1)
-            else:
-                # No students registered
-                frame = create_simulation_frame(show_face=True)
-                cv2.putText(frame, "No students registered with face data", (120, 400), 
-                           cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-                ret, buffer = cv2.imencode('.jpg', frame)
-                frame_bytes = buffer.tobytes()
-                yield (b'--frame\r\n'
-                       b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
-                time.sleep(3)
-            
-            # Loop the simulation video
-            while True:
-                frame = create_simulation_frame(student_id=recognized_id if recognized else None, show_face=True)
-                
-                # Display help text
-                cv2.putText(frame, "SIMULATION MODE - Register students to test attendance", (80, 440), 
-                           cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
-                
-                ret, buffer = cv2.imencode('.jpg', frame)
-                frame_bytes = buffer.tobytes()
-                yield (b'--frame\r\n'
-                       b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
-                time.sleep(0.1)
-            
-            return
-        
-        # Webcam mode
         try:
             camera = cv2.VideoCapture(1)
             if not camera.isOpened():
@@ -475,7 +321,7 @@ def view_attendance():
     # Sort by date (most recent first)
     attendance_files.sort(key=lambda x: x['date'], reverse=True)
     
-    return render_template('view_attendance.html', attendance_files=attendance_files, simulation_mode=not USE_WEBCAM)
+    return render_template('view_attendance.html', attendance_files=attendance_files)
 
 @app.route('/attendance_data/<filename>')
 def attendance_data(filename):
@@ -496,11 +342,11 @@ def students():
             student_id = student['student_id']
             student['face_captured'] = os.path.exists(f'data/faces/{student_id}.npy')
         
-        return render_template('students.html', students=students_list, simulation_mode=not USE_WEBCAM)
-    return render_template('students.html', students=[], simulation_mode=not USE_WEBCAM)
+        return render_template('students.html', students=students_list)
+    return render_template('students.html', students=[])
 
 # Initialize system on startup
 initialize_system()
 
 if __name__ == '__main__':
-    app.run(debug=True) 
+    app.run(debug=True)
