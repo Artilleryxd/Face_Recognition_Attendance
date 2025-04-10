@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2 class="mb-4"><i class="fas fa-clipboard-check me-2"></i>Mark Attendance</h2>
+
+<div class="row">
+    <div class="col-lg-8 offset-lg-2">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">Face Recognition Attendance</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Students will be automatically recognized when they appear in the camera frame. Attendance will be marked once per day.
+                </div>
+                
+                <div class="video-container mb-4">
+                    <img src="{{ url_for('video_feed_attendance') }}" width="100%">
+                </div>
+                
+                <div class="d-grid mt-3">
+                    <a href="/view_attendance" class="btn btn-success">
+                        <i class="fas fa-list-alt me-2"></i>View Today's Attendance
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0">Instructions</h5>
+            </div>
+            <div class="card-body">
+                <ol>
+                    <li>Ensure students face the camera directly.</li>
+                    <li>Maintain proper lighting for better recognition.</li>
+                    <li>Each student's attendance is marked only once per day.</li>
+                    <li>A confirmation message will appear when attendance is marked.</li>
+                    <li>Attendance records are saved automatically to CSV files.</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

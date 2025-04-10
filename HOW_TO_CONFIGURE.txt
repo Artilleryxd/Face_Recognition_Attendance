@@ -1,0 +1,43 @@
+BIOMETRIC ATTENDANCE SYSTEM CONFIGURATION GUIDE
+=============================================
+
+By default, the system runs in SIMULATION MODE, which does not require webcam access.
+This allows you to test the system's functionality without a webcam.
+
+TO TOGGLE BETWEEN WEBCAM AND SIMULATION MODE:
+---------------------------------------------
+
+1. Open the file: app.py
+
+2. Find this line (around line 20):
+   
+   # Configuration
+   USE_WEBCAM = False  # Set to False to use simulation mode instead of webcam
+
+3. To use a real webcam:
+   Change to: USE_WEBCAM = True
+   
+   To use simulation mode (no webcam required):
+   Keep as: USE_WEBCAM = False
+
+4. Save the file and restart the application.
+
+TROUBLESHOOTING WEBCAM ACCESS:
+------------------------------
+
+If you're using webcam mode and see "Camera access denied":
+
+1. Mac users:
+   - Go to System Preferences > Security & Privacy > Camera
+   - Ensure your terminal or Python app has permission to access the camera
+
+2. Windows users:
+   - Go to Settings > Privacy > Camera
+   - Ensure "Allow apps to access your camera" is ON
+
+3. Other issues:
+   - Ensure no other applications are using your webcam
+   - Try restarting your computer
+   - Check that your webcam is properly connected and functioning
+
+If you continue to have webcam access issues, you can always use simulation mode to test the system. 

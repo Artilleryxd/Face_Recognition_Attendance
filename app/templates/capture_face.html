@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2 class="mb-4"><i class="fas fa-camera me-2"></i>Capture Face</h2>
+
+<div class="row">
+    <div class="col-lg-8 offset-lg-2">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">Face Capture for Student ID: {{ student_id }}</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Position your face clearly in the frame. The system will automatically capture your face after a brief countdown.
+                </div>
+                
+                <div class="video-container mb-4">
+                    <img src="{{ url_for('video_feed_capture', student_id=student_id) }}" width="100%">
+                </div>
+                
+                <div id="captureStatus" class="alert alert-warning">
+                    <i class="fas fa-spinner fa-spin me-2"></i>
+                    Waiting for face detection...
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <a href="/students" id="continueBtn" class="btn btn-success" style="display: none;">
+                        <i class="fas fa-check-circle me-2"></i>Continue to Students List
+                    </a>
+                    <a href="/register" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Back to Registration
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // Check every 2 seconds if face has been captured
+        const checkInterval = setInterval(function() {
+            $.getJSON("{{ url_for('face_captured', student_id=student_id) }}", function(data) {
+                if (data.success) {
+                    clearInterval(checkInterval);
+                    
+                    // Update status
+                    $("#captureStatus")
+                        .removeClass("alert-warning")
+                        .addClass("alert-success")
+                        .html('<i class="fas fa-check-circle me-2"></i>Face captured successfully!');
+                    
+                    // Show continue button
+                    $("#continueBtn").show();
+                }
+            });
+        }, 2000);
+    });
+</script>
+{% endblock %} 

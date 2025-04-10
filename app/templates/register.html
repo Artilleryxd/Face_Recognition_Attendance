@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2 class="mb-4"><i class="fas fa-user-plus me-2"></i>Register New Student</h2>
+
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">Student Information</h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="/register">
+                    <div class="mb-3">
+                        <label for="student_id" class="form-label">Student ID</label>
+                        <input type="text" class="form-control" id="student_id" name="student_id" required placeholder="Enter student ID">
+                        <div class="form-text">Unique identifier for the student (e.g., roll number)</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Full Name</label>
+                        <input type="text" class="form-control" id="name" name="name" required placeholder="Enter student's full name">
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Save and Continue to Face Capture
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="card mt-4">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0">Information</h5>
+            </div>
+            <div class="card-body">
+                <p>After submitting student details, you will be directed to the face capture page:</p>
+                <ol>
+                    <li>Position the student's face clearly in the camera frame.</li>
+                    <li>Ensure adequate lighting for best recognition.</li>
+                    <li>The system will automatically capture the face after a brief countdown.</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

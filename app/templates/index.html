@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="jumbotron bg-light p-5 rounded-3 mb-5">
+    <h1 class="display-4">Biometric Attendance System</h1>
+    <p class="lead">A face recognition system for tracking student attendance automatically.</p>
+    <hr class="my-4">
+    <p>Use the navigation above to register new students, mark attendance, or view attendance records.</p>
+    <div class="mt-4">
+        <a href="/register" class="btn btn-primary btn-lg me-2">
+            <i class="fas fa-user-plus me-2"></i>Register Student
+        </a>
+        <a href="/attendance" class="btn btn-success btn-lg">
+            <i class="fas fa-clipboard-check me-2"></i>Mark Attendance
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card feature-card">
+            <div class="card-body text-center">
+                <div class="feature-icon">
+                    <i class="fas fa-user-plus"></i>
+                </div>
+                <h3 class="card-title">Register Students</h3>
+                <p class="card-text">Add new students to the system with their details and biometric data.</p>
+                <a href="/register" class="btn btn-primary">Register Now</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card feature-card">
+            <div class="card-body text-center">
+                <div class="feature-icon">
+                    <i class="fas fa-camera"></i>
+                </div>
+                <h3 class="card-title">Face Recognition</h3>
+                <p class="card-text">Automatically identify students and mark attendance using facial recognition.</p>
+                <a href="/attendance" class="btn btn-primary">Take Attendance</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card feature-card">
+            <div class="card-body text-center">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <h3 class="card-title">Attendance Reports</h3>
+                <p class="card-text">View and analyze attendance data with easy-to-read reports.</p>
+                <a href="/view_attendance" class="btn btn-primary">View Reports</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

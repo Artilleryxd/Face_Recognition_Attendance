@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2 class="mb-4"><i class="fas fa-users me-2"></i>Students List</h2>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <a href="/register" class="btn btn-primary">
+            <i class="fas fa-user-plus me-2"></i>Register New Student
+        </a>
+    </div>
+    <div class="col-md-6 text-md-end">
+        <a href="/attendance" class="btn btn-success">
+            <i class="fas fa-clipboard-check me-2"></i>Mark Attendance
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header bg-primary text-white">
+        <h5 class="card-title mb-0">Registered Students</h5>
+    </div>
+    <div class="card-body">
+        {% if students %}
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Student ID</th>
+                            <th>Name</th>
+                            <th>Face Data</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students %}
+                            <tr>
+                                <td>{{ student.student_id }}</td>
+                                <td>{{ student.name }}</td>
+                                <td>
+                                    {% if student.face_captured %}
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check-circle me-1"></i>Captured
+                                        </span>
+                                    {% else %}
+                                        <span class="badge bg-warning">
+                                            <i class="fas fa-exclamation-triangle me-1"></i>Not Captured
+                                        </span>
+                                        <a href="{{ url_for('capture_face', student_id=student.student_id) }}" class="btn btn-sm btn-outline-primary ms-2">
+                                            <i class="fas fa-camera me-1"></i>Capture
+                                        </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle me-2"></i>No students registered yet.
+                <a href="/register" class="alert-link">Register now</a>.
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %} 

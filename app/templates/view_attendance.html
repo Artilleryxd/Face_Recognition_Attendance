@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2 class="mb-4"><i class="fas fa-list-alt me-2"></i>View Attendance</h2>
+
+<div class="row">
+    <div class="col-lg-10 offset-lg-1">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">Attendance Records</h5>
+            </div>
+            <div class="card-body">
+                {% if attendance_files %}
+                    <ul class="nav nav-tabs" id="attendanceTabs" role="tablist">
+                        {% for file in attendance_files %}
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link {% if loop.first %}active{% endif %}" 
+                                        id="tab-{{ loop.index }}" 
+                                        data-bs-toggle="tab" 
+                                        data-bs-target="#content-{{ loop.index }}" 
+                                        type="button" 
+                                        role="tab"
+                                        data-filename="{{ file.filename }}">
+                                    {{ file.date }}
+                                </button>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    
+                    <div class="tab-content mt-3" id="attendanceTabContent">
+                        {% for file in attendance_files %}
+                            <div class="tab-pane fade {% if loop.first %}show active{% endif %}" 
+                                 id="content-{{ loop.index }}" 
+                                 role="tabpanel">
+                                
+                                <h4>Attendance for {{ file.date }}</h4>
+                                
+                                <div class="table-responsive mt-3">
+                                    <table class="table table-striped table-hover attendance-table" id="table-{{ loop.index }}">
+                                        <thead>
+                                            <tr>
+                                                <th>Student ID</th>
+                                                <th>Name</th>
+                                                <th>Time</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td colspan="3" class="text-center">
+                                                    <div class="spinner-border text-primary" role="status">
+                                                        <span class="visually-hidden">Loading...</span>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>No attendance records found.
+                        <a href="/attendance" class="alert-link">Mark attendance</a> to create records.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        // Load the first tab's data initially
+        const firstTab = document.querySelector('[data-bs-toggle="tab"].active');
+        if (firstTab) {
+            loadAttendanceData(firstTab.getAttribute('data-filename'), firstTab.getAttribute('data-bs-target').substring(1));
+        }
+        
+        // Load data when switching tabs
+        $('button[data-bs-toggle="tab"]').on('shown.bs.tab', function (e) {
+            const filename = $(e.target).data('filename');
+            const targetId = $(e.target).attr('data-bs-target').substring(1);
+            loadAttendanceData(filename, targetId);
+        });
+        
+        function loadAttendanceData(filename, targetId) {
+            $.getJSON("{{ url_for('attendance_data', filename='') }}" + filename, function(data) {
+                const tableId = targetId.replace('content-', 'table-');
+                const tableBody = $('#' + tableId + ' tbody');
+                
+                if (data.length === 0) {
+                    tableBody.html('<tr><td colspan="3" class="text-center">No attendance records for this day</td></tr>');
+                    return;
+                }
+                
+                let rows = '';
+                data.forEach(function(record) {
+                    rows += `
+                        <tr>
+                            <td>${record.student_id}</td>
+                            <td>${record.name}</td>
+                            <td>${record.time}</td>
+                        </tr>
+                    `;
+                });
+                
+                tableBody.html(rows);
+            });
+        }
+    });
+</script>
+{% endblock %} 
